@@ -155,16 +155,29 @@ def test_dashboard_served_and_access_password(workspace, tmp_path):
     (dist / "index.html").write_text("<html>viona</html>")
     import os
     os.environ["VIONA_FRONTEND_DIR"], os.environ["VIONA_ACCESS_PASSWORD"] = str(dist), "s3cret"
+    os.environ["NID_ALLOWED_ORIGINS"] = "https://viona.netlify.app"
     try:
         with make_client(workspace) as c:
-            assert c.get("/live").status_code == 401
+            assert c.get("/live").status_code == 401 and "www-authenticate" in c.get("/live").headers  # page: browser prompt
+            api401 = c.get("/api/scans")
+            assert api401.status_code == 401 and "www-authenticate" not in api401.headers  # API: no popup, app shows its own login
             assert c.get("/api/health").status_code == 200  # probes stay open
             assert c.get("/live", auth=("any", "wrong")).status_code == 401
             ok = c.get("/live", auth=("any", "s3cret"))
             assert ok.status_code == 200 and "viona" in ok.text
             assert c.get("/api/nope", auth=("any", "s3cret")).status_code == 404
+            # cross-origin browser flow (static site on Netlify): header key, preflight, stream/export query key
+            origin = {"Origin": "https://viona.netlify.app"}
+            pre = c.options("/api/scans", headers={**origin, "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "x-viona-key"})
+            assert pre.status_code == 200 and pre.headers["access-control-allow-origin"] == "https://viona.netlify.app"
+            denied = c.get("/api/scans", headers=origin)
+            assert denied.status_code == 401 and denied.headers["access-control-allow-origin"] == "https://viona.netlify.app"
+            assert c.get("/api/scans", headers={**origin, "X-Viona-Key": "s3cret"}).status_code == 200
+            assert c.get("/api/scans?key=s3cret").status_code == 401  # query key is not accepted on ordinary routes
+            assert c.get("/api/scans/x/export.csv?scope=all&key=s3cret").status_code != 401
     finally:
-        os.environ.pop("VIONA_FRONTEND_DIR"); os.environ.pop("VIONA_ACCESS_PASSWORD")
+        for k in ("VIONA_FRONTEND_DIR", "VIONA_ACCESS_PASSWORD", "NID_ALLOWED_ORIGINS"):
+            os.environ.pop(k, None)
 
 
 def test_bundled_demo_model_loads_and_is_labelled_synthetic():

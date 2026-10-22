@@ -18,7 +18,7 @@ const NAV = [
 
 export function AppLayout() {
   const { scanId, setScanId, scans } = useScope();
-  const { state } = useHealthState();
+  const { state, waking } = useHealthState();
   const analyzable = scans.filter((s) => s.status === "completed");
 
   return (
@@ -64,7 +64,18 @@ export function AppLayout() {
           <span className="muted small">Predictions are model estimates. Flagged records are potential intrusions, not confirmed incidents.</span>
         </header>
         <main className="page">
-          {state.phase === "unreachable" && (
+          {waking && state.phase !== "answered" && (
+            <Banner tone="info">
+              <div className="wake" role="status">
+                <span className="spin" aria-hidden="true" />
+                <div>
+                  <strong>Starting the analysis server.</strong> The interface is ready; the detection engine behind it sleeps when idle
+                  and can take up to a minute to wake. This page connects automatically.
+                </div>
+              </div>
+            </Banner>
+          )}
+          {!waking && state.phase === "unreachable" && (
             <Banner tone="error">
               <div><strong>The backend is not reachable.</strong> {state.error} Pages below cannot show live results until it is running.</div>
             </Banner>

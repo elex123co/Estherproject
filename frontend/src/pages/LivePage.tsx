@@ -23,6 +23,7 @@ function fmtMs(x: number | null | undefined) {
 
 export function LivePage() {
   const { snap, feed, connected } = useLiveStream();
+  const { waking } = useHealthState();
   const { data: catalog, error: catErr, reload } = useAsync(() => api.rtScenarios(), [snap?.state === "running"]);
   const [openId, setOpenId] = useState<string | null>(null);
   const running = snap?.state === "running";
@@ -37,10 +38,10 @@ export function LivePage() {
             composed in memory from held-out labelled flows; nothing is sent over any network.
           </p>
         </div>
-        <span className={`tag ${connected ? "tag-normal" : "tag-suspicious"}`}>{connected ? "Stream connected" : "Stream disconnected, retrying"}</span>
+        <span className={`tag ${connected ? "tag-normal" : waking ? "tag-normal" : "tag-suspicious"}`}>{connected ? "Stream connected" : waking ? "Waiting for server" : "Stream disconnected, retrying"}</span>
       </div>
 
-      {catErr && <ErrorBox error={catErr} onRetry={reload} />}
+      {catErr && !waking && <ErrorBox error={catErr} onRetry={reload} />}
       {!snap && !catErr && <Loading label="Connecting to the detection engine" />}
       {snap && !snap.simulator.available && (
         <Banner tone="warn">

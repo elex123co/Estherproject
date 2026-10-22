@@ -44,12 +44,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ),
         lifespan=lifespan,
     )
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.allowed_origins,
-        allow_methods=["GET", "POST", "PATCH", "DELETE"],
-        allow_headers=["*"],
-    )
 
     @app.exception_handler(Exception)
     async def unhandled(_: Request, exc: Exception):
@@ -59,19 +53,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     if settings.access_password:
         expected = settings.access_password
 
+        def _ok(supplied: str) -> bool:
+            return secrets.compare_digest(supplied.encode(), expected.encode())
+
         @app.middleware("http")
         async def gate(request: Request, call_next):
-            if request.url.path != "/api/health":  # health stays open for host probes
-                supplied = ""
+            path = request.url.path
+            if request.method == "OPTIONS" or path == "/api/health":  # CORS preflight and host probes stay open
+                return await call_next(request)
+            supplied = request.headers.get("x-viona-key", "")
+            if not supplied:
                 header = request.headers.get("authorization", "")
                 if header.lower().startswith("basic "):
                     try:
                         supplied = base64.b64decode(header[6:]).decode().partition(":")[2]
                     except Exception:  # noqa: BLE001
                         supplied = ""
-                if not secrets.compare_digest(supplied.encode(), expected.encode()):
-                    return Response(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Viona"'})
-            return await call_next(request)
+            # Browsers cannot attach headers to EventSource or plain download links, so those two GET routes accept ?key=
+            if not supplied and request.method == "GET" and (path.endswith("/stream") or path.endswith("/export.csv")):
+                supplied = request.query_params.get("key", "")
+            if _ok(supplied):
+                return await call_next(request)
+            headers = {} if path.startswith("/api/") else {"WWW-Authenticate": 'Basic realm="Viona"'}  # no browser popup for API calls
+            return JSONResponse(status_code=401, content={"detail": "Access key required."}, headers=headers)
+
+    # Added after the gate so CORS is the outermost layer and even 401 responses carry CORS headers.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins,
+        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_headers=["*"],
+    )
 
     app.include_router(routes_system.router)
     app.include_router(routes_scans.router)

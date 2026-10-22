@@ -278,3 +278,13 @@ td.num input[type="number"] { width: 84px; text-align: right; }
   table.data th, table.data td { padding: 8px 9px; }
   .drawer { width: 100%; max-width: 100%; }
 }
+
+/* ---- access gate and server wake-up ---- */
+.gate { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.gate-card { width: 100%; max-width: 360px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.gate-card input[type="password"] { width: 100%; background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; padding: 9px 10px; font: inherit; }
+.err { color: #ff9aa4; font-size: 12px; }
+.wake { display: flex; gap: 12px; align-items: flex-start; }
+.wake .spin { flex: none; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--border-strong); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .wake .spin { animation: none; } }

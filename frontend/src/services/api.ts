@@ -22,6 +22,40 @@ import type {
 
 const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 
+const KEY_STORAGE = "viona-access-key";
+
+export const accessKey = {
+  get(): string {
+    try {
+      return sessionStorage.getItem(KEY_STORAGE) ?? "";
+    } catch {
+      return "";
+    }
+  },
+  set(value: string) {
+    try {
+      sessionStorage.setItem(KEY_STORAGE, value);
+    } catch {
+      /* storage unavailable: the key then lasts until reload only */
+    }
+  },
+  clear() {
+    try {
+      sessionStorage.removeItem(KEY_STORAGE);
+    } catch {
+      /* ignore */
+    }
+  },
+};
+
+/** Fired when the backend answers 401, so the app can ask for the access key. */
+export const AUTH_EVENT = "viona-auth-required";
+
+function withKey(url: string): string {
+  const key = accessKey.get();
+  return key ? `${url}${url.includes("?") ? "&" : "?"}key=${encodeURIComponent(key)}` : url;
+}
+
 export class ApiError extends Error {
   status: number;
   problems: string[];
@@ -49,10 +83,14 @@ function describe(detail: unknown, fallback: string): { message: string; problem
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${BASE}${path}`, init);
+    const key = accessKey.get();
+    const headers = new Headers(init?.headers);
+    if (key) headers.set("X-Viona-Key", key);
+    response = await fetch(`${BASE}${path}`, { ...init, headers });
   } catch {
     throw new ApiError("Cannot reach the backend. Check that the API server is running.", 0);
   }
+  if (response.status === 401) window.dispatchEvent(new Event(AUTH_EVENT));
   if (!response.ok) {
     let detail: unknown;
     try {
@@ -108,13 +146,13 @@ export const api = {
 
   report: (id: string) => request<Report>(`/api/scans/${id}/report`),
   exportUrl: (id: string, scope: "alerts" | "all", includeContext = false) =>
-    `${BASE}/api/scans/${id}/export.csv${qs({ scope, include_network_context: includeContext || undefined })}`,
+    withKey(`${BASE}/api/scans/${id}/export.csv${qs({ scope, include_network_context: includeContext || undefined })}`),
 
   rtScenarios: () => request<RtScenarios>("/api/realtime/scenarios"),
   rtStatus: () => request<RtSnapshot>("/api/realtime/status"),
   rtStart: (body: RtStartBody) => request<RtSnapshot>("/api/realtime/sessions", json("POST", body)),
   rtStop: () => request<RtSnapshot>("/api/realtime/sessions/stop", { method: "POST" }),
-  rtStreamUrl: () => `${BASE}/api/realtime/stream`,
+  rtStreamUrl: () => withKey(`${BASE}/api/realtime/stream`),
 
   /** Upload with progress (fetch cannot report upload progress). */
   upload(file: File, onProgress: (fraction: number) => void): Promise<UploadResponse> {
@@ -126,6 +164,7 @@ export const api = {
       };
       xhr.onerror = () => reject(new ApiError("Cannot reach the backend. Check that the API server is running.", 0));
       xhr.onload = () => {
+        if (xhr.status === 401) window.dispatchEvent(new Event(AUTH_EVENT));
         let body: unknown = null;
         try {
           body = JSON.parse(xhr.responseText);
@@ -139,6 +178,8 @@ export const api = {
           reject(new ApiError(message, xhr.status, problems));
         }
       };
+      const key = accessKey.get();
+      if (key) xhr.setRequestHeader("X-Viona-Key", key);
       const form = new FormData();
       form.append("file", file);
       xhr.send(form);

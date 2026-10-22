@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
 import { useHealth, type HealthState } from "../hooks/useHealth";
 
 interface HealthCtx {
@@ -6,14 +6,23 @@ interface HealthCtx {
   recheck: () => void;
   /** True only when the last health check answered and reported ready. */
   ready: boolean;
+  /** True until the backend has answered once. A sleeping free host can take about a minute. */
+  waking: boolean;
 }
 
 const Ctx = createContext<HealthCtx | null>(null);
 
 export function HealthProvider({ children }: { children: ReactNode }) {
-  const { state, recheck } = useHealth();
+  const { state, recheck, everAnswered } = useHealth();
+  // The page may have loaded while a sleeping host was still waking, so its first data requests failed.
+  // Once the server answers, reload once so every page fetches fresh data.
+  const sawDown = useRef(false);
+  useEffect(() => {
+    if (state.phase === "unreachable") sawDown.current = true;
+    if (state.phase === "answered" && sawDown.current) window.location.reload();
+  }, [state]);
   const ready = state.phase === "answered" && state.health.ready;
-  return <Ctx.Provider value={{ state, recheck, ready }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ state, recheck, ready, waking: !everAnswered }}>{children}</Ctx.Provider>;
 }
 
 export function useHealthState(): HealthCtx {

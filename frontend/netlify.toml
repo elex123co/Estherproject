@@ -1,0 +1,13 @@
+# Netlify settings for the Viona dashboard (set "Base directory" to frontend when importing the repo).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: every path serves index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

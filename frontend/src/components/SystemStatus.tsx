@@ -12,12 +12,19 @@ function Line({ ok, label, detail }: { ok: boolean | null; label: string; detail
 
 /** Shows only what the last /api/health call actually reported. */
 export function SystemStatus() {
-  const { state, recheck } = useHealthState();
+  const { state, recheck, waking } = useHealthState();
 
   if (state.phase === "checking") {
     return (
       <div className="status-card" aria-live="polite">
         <Line ok={null} label="Checking system..." />
+      </div>
+    );
+  }
+  if (state.phase === "unreachable" && waking) {
+    return (
+      <div className="status-card" aria-live="polite">
+        <Line ok={null} label="Waking the server..." />
       </div>
     );
   }

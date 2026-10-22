@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AccessGate } from "./components/AccessGate";
 import { HealthProvider } from "./context/HealthContext";
 import { ScanProvider } from "./context/ScanContext";
 import { AppLayout } from "./layouts/AppLayout";
@@ -15,6 +16,7 @@ import { Empty } from "./components/ui";
 export default function App() {
   return (
     <BrowserRouter>
+      <AccessGate>
       <HealthProvider>
         <ScanProvider>
           <Routes>
@@ -32,6 +34,7 @@ export default function App() {
           </Routes>
         </ScanProvider>
       </HealthProvider>
+      </AccessGate>
     </BrowserRouter>
   );
 }
