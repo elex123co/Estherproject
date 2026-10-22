@@ -29,7 +29,7 @@ class Container:
 
 def build_container(settings: Settings) -> Container:
     settings.ensure_dirs()
-    db = Database(settings.database_path)
+    db = Database(settings.database_path, settings.database_url)
     db.init()
     repo = Repository(db)
     repo.fail_interrupted_scans()

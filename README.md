@@ -12,11 +12,21 @@ It does not replace security analysts, cannot guarantee detection, and flagged r
 The dashboard needs the backend process running somewhere that stays on. A browser tab alone cannot run the model. The repo includes a `Dockerfile` that builds the dashboard and serves it and the API from one URL.
 
 1. Deploy the repo to a host that runs Docker containers continuously (Render, Railway, Fly.io, a VPS). Serverless hosts such as Vercel or Netlify functions will not work: the real-time engine is a long-running process.
-2. Attach a **persistent disk** mounted at `/app/data` and `/app/models`. Without it, the SQLite file and the trained model vanish on every restart.
+2. Attach one **persistent disk** (for example mounted at `/var/data`) and set `VIONA_STORAGE=/var/data`. The data and models folders are kept inside it. Without it, the SQLite file and the trained model vanish on every restart.
 3. Set `VIONA_ACCESS_PASSWORD`. This puts a password prompt in front of everything. Without it, anyone with the URL can upload data and start sessions.
 4. On first start with no model, the container trains the **synthetic demo model** (flagged as synthetic in the UI). For real use, put CICIDS2017 CSVs on the disk and run `python scripts/train.py ...` inside the container.
 
 No external database is needed. Data entered by hand (single-record check, CSV upload) is stored in the same SQLite file.
+
+## Storing results in Supabase (Postgres)
+
+By default Viona keeps results in a local SQLite file. To keep them across restarts on a host without a disk, set one environment variable and the same app stores everything in Postgres:
+
+- `DATABASE_URL`: the connection string from Supabase (Project Settings, Database, Connection string, **Session pooler** or the direct connection; the Transaction pooler also works).
+
+The tables are created automatically on first start, with row level security switched on and no policies, so Supabase's public REST API cannot read them. Only the backend's own connection can. With Postgres the real-time record cap defaults to 50,000 (`NID_MAX_REALTIME_RECORDS`) to respect the free 500 MB limit. The CSV files you upload are still saved on the server's local disk, so after a restart on a free host the results remain but a file cannot be replayed again.
+
+To test against a local Postgres: `TEST_DATABASE_URL=postgresql://... python -m pytest`.
 
 ## Real-time detection and the controlled simulation environment
 

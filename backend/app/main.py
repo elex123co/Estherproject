@@ -33,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
         app.state.container.realtime.shutdown()
         app.state.container.analysis.executor.shutdown(wait=False, cancel_futures=True)
+        app.state.container.db.close()
 
     app = FastAPI(
         title=settings.app_name,

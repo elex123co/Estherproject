@@ -31,8 +31,19 @@ def workspace(tmp_path_factory):
     return root
 
 
+def _reset_pg(url):
+    import psycopg
+    with psycopg.connect(url, autocommit=True) as c:
+        c.execute("DROP TABLE IF EXISTS records, scans CASCADE")
+
+
 def make_client(workspace, model_dir=None):
+    import os
+    pg = os.environ.get("TEST_DATABASE_URL")  # run the whole suite against Postgres: TEST_DATABASE_URL=postgresql://...
+    if pg:
+        _reset_pg(pg)
     settings = Settings(
+        database_url=pg or None,
         model_dir=model_dir or workspace / "models",
         data_dir=workspace / "data",
         database_path=workspace / "data" / f"test-{id(object())}.sqlite3",

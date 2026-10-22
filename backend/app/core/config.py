@@ -25,6 +25,9 @@ class Settings:
     app_name: str = "Viona API"
     app_version: str = "1.0.0"
 
+    # Postgres connection string (for example Supabase). When unset, a local SQLite file is used.
+    database_url: str | None = field(default_factory=lambda: os.environ.get("DATABASE_URL") or None)
+
     # Optional shared password for the whole site (HTTP Basic, any username). Unset means open, which is fine on localhost only.
     access_password: str | None = field(default_factory=lambda: os.environ.get("VIONA_ACCESS_PASSWORD") or None)
     frontend_dir: Path = field(default_factory=lambda: _env_path("VIONA_FRONTEND_DIR", REPO_ROOT / "frontend" / "dist"))
@@ -60,7 +63,7 @@ class Settings:
     max_page_size: int = 200
     # Real-time sessions
     max_realtime_rate: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RATE", "2000")))
-    max_realtime_records: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RECORDS", "500000")))
+    max_realtime_records: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RECORDS", "50000" if os.environ.get("DATABASE_URL") else "500000")))
     max_session_seconds: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_SESSION_SECONDS", "3600")))
 
     @property

@@ -200,7 +200,7 @@ class Repository:
         order = SORT_COLUMNS.get(sort, "event_time")
         direction = "DESC" if descending else "ASC"
         with self.db.connect() as conn:
-            total = conn.execute(f"SELECT COUNT(*) FROM records{where}", params).fetchone()[0]
+            total = conn.execute(f"SELECT COUNT(*) AS n FROM records{where}", params).fetchone()["n"]
             rows = conn.execute(
                 "SELECT id, scan_id, row_index, processed_at, event_time, event_time_source, predicted_class, "
                 "is_suspicious, attack_category, confidence, risk_level, requires_review, risk_rule_id, risk_reason, "
@@ -339,7 +339,7 @@ class Repository:
     def filter_options(self, scan_id: str | None) -> dict:
         where, params = RecordFilters(scan_id=scan_id).to_sql()
         with self.db.connect() as conn:
-            cats = [r[0] for r in conn.execute("SELECT DISTINCT predicted_class FROM records" + where + " ORDER BY 1", params)]
+            cats = [r["predicted_class"] for r in conn.execute("SELECT DISTINCT predicted_class FROM records" + where + " ORDER BY predicted_class", params).fetchall()]
         return {"categories": cats, "risk_levels": RISK_LEVELS, "review_statuses": list(REVIEW_STATUSES)}
 
     def report_tables(self, scan_id: str) -> dict:
