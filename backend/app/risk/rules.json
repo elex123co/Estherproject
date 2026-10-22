@@ -1,0 +1,96 @@
+{
+  "version": "1.0.0",
+  "description": "Transparent, configurable risk rules. The risk level is an application-level triage priority. It is separate from the model's predicted class and from the model's confidence.",
+  "benign_label": "BENIGN",
+  "low_confidence_threshold": 0.6,
+  "benign_review_confidence_below": 0.6,
+  "max_imputed_fraction": 0.2,
+  "confidence_cap_level": "Medium",
+  "category_rules": {
+    "PortScan": {
+      "level": "Low",
+      "rule_id": "CAT-RECON",
+      "reason": "Port scanning is reconnaissance. It often precedes an attack but has no direct impact on its own."
+    },
+    "FTP-Patator": {
+      "level": "Medium",
+      "rule_id": "CAT-BRUTE-FORCE",
+      "reason": "Credential brute-force pattern against FTP. Needs review for account compromise."
+    },
+    "SSH-Patator": {
+      "level": "Medium",
+      "rule_id": "CAT-BRUTE-FORCE",
+      "reason": "Credential brute-force pattern against SSH. Needs review for account compromise."
+    },
+    "Web Attack - Brute Force": {
+      "level": "Medium",
+      "rule_id": "CAT-WEB-BRUTE-FORCE",
+      "reason": "Web login brute-force pattern. Needs review for account compromise."
+    },
+    "Web Attack - XSS": {
+      "level": "Medium",
+      "rule_id": "CAT-WEB-XSS",
+      "reason": "Cross-site scripting pattern against a web application."
+    },
+    "Web Attack - Sql Injection": {
+      "level": "High",
+      "rule_id": "CAT-WEB-SQLI",
+      "reason": "SQL injection pattern. Potential data exposure or modification, warrants prompt investigation."
+    },
+    "DoS slowloris": {
+      "level": "Medium",
+      "rule_id": "CAT-DOS-SLOW",
+      "reason": "Slow denial-of-service pattern that ties up connections at low bandwidth."
+    },
+    "DoS Slowhttptest": {
+      "level": "Medium",
+      "rule_id": "CAT-DOS-SLOW",
+      "reason": "Slow denial-of-service pattern that ties up connections at low bandwidth."
+    },
+    "DoS Hulk": {
+      "level": "High",
+      "rule_id": "CAT-DOS-FLOOD",
+      "reason": "Flood-style denial-of-service pattern with potential availability impact."
+    },
+    "DoS GoldenEye": {
+      "level": "High",
+      "rule_id": "CAT-DOS-FLOOD",
+      "reason": "Flood-style denial-of-service pattern with potential availability impact."
+    },
+    "DDoS": {
+      "level": "High",
+      "rule_id": "CAT-DDOS",
+      "reason": "Distributed denial-of-service pattern with potential availability impact."
+    },
+    "Bot": {
+      "level": "High",
+      "rule_id": "CAT-BOT",
+      "reason": "Botnet command-and-control style traffic suggests a possibly compromised host."
+    },
+    "Infiltration": {
+      "level": "Critical",
+      "rule_id": "CAT-INFILTRATION",
+      "reason": "Infiltration pattern suggests an internal host may already be compromised. Highest-priority category."
+    },
+    "Heartbleed": {
+      "level": "Critical",
+      "rule_id": "CAT-HEARTBLEED",
+      "reason": "Heartbleed exploitation pattern can leak server memory including keys. Highest-priority category."
+    }
+  },
+  "default_rule": {
+    "level": "Needs review",
+    "rule_id": "CAT-UNMAPPED",
+    "reason": "The predicted category has no risk rule. A severity is not assigned without evidence, so analyst review is required."
+  },
+  "escalations": [
+    {
+      "rule_id": "ESC-DOS-VOLUME",
+      "description": "Raise a flood-style DoS/DDoS flow to Critical when the model is confident AND the flow itself shows an extreme packet rate.",
+      "categories": ["DoS Hulk", "DoS GoldenEye", "DDoS"],
+      "min_confidence": 0.9,
+      "conditions": [{ "feature": "Flow Packets/s", "op": ">=", "value": 50000 }],
+      "raise_to": "Critical"
+    }
+  ]
+}
