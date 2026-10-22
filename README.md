@@ -1,9 +1,22 @@
-# Network Intrusion Detection and Risk Assessment
+# Viona
+
+ML-based real-time detection of network security threats, with a controlled simulation environment, a rule-based risk engine and a monitoring dashboard.
 
 A decision-support prototype: a FastAPI + scikit-learn backend that classifies network flows with a trained model,
 a separate rule-based risk engine, SQLite persistence, and a React/TypeScript dashboard.
 
 It does not replace security analysts, cannot guarantee detection, and flagged records are *potential* intrusions, not confirmed incidents.
+
+## Running it from a URL (hosted)
+
+The dashboard needs the backend process running somewhere that stays on. A browser tab alone cannot run the model. The repo includes a `Dockerfile` that builds the dashboard and serves it and the API from one URL.
+
+1. Deploy the repo to a host that runs Docker containers continuously (Render, Railway, Fly.io, a VPS). Serverless hosts such as Vercel or Netlify functions will not work: the real-time engine is a long-running process.
+2. Attach a **persistent disk** mounted at `/app/data` and `/app/models`. Without it, the SQLite file and the trained model vanish on every restart.
+3. Set `VIONA_ACCESS_PASSWORD`. This puts a password prompt in front of everything. Without it, anyone with the URL can upload data and start sessions.
+4. On first start with no model, the container trains the **synthetic demo model** (flagged as synthetic in the UI). For real use, put CICIDS2017 CSVs on the disk and run `python scripts/train.py ...` inside the container.
+
+No external database is needed. Data entered by hand (single-record check, CSV upload) is stored in the same SQLite file.
 
 ## Real-time detection and the controlled simulation environment
 

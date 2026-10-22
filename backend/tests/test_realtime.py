@@ -147,3 +147,21 @@ def test_health_unaffected_and_model_missing_blocks_sessions(workspace, tmp_path
     with make_client(workspace, model_dir=tmp_path / "none") as c:
         assert c.get("/api/realtime/scenarios").json()["available"] is False
         assert c.post("/api/realtime/sessions", json={"mode": "live"}).status_code == 503
+
+
+def test_dashboard_served_and_access_password(workspace, tmp_path):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text("<html>viona</html>")
+    import os
+    os.environ["VIONA_FRONTEND_DIR"], os.environ["VIONA_ACCESS_PASSWORD"] = str(dist), "s3cret"
+    try:
+        with make_client(workspace) as c:
+            assert c.get("/live").status_code == 401
+            assert c.get("/api/health").status_code == 200  # probes stay open
+            assert c.get("/live", auth=("any", "wrong")).status_code == 401
+            ok = c.get("/live", auth=("any", "s3cret"))
+            assert ok.status_code == 200 and "viona" in ok.text
+            assert c.get("/api/nope", auth=("any", "s3cret")).status_code == 404
+    finally:
+        os.environ.pop("VIONA_FRONTEND_DIR"); os.environ.pop("VIONA_ACCESS_PASSWORD")

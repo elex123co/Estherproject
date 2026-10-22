@@ -22,8 +22,12 @@ def _env_list(name: str, default: list[str]) -> list[str]:
 
 @dataclass
 class Settings:
-    app_name: str = "Network Intrusion Detection and Risk Assessment API"
+    app_name: str = "Viona API"
     app_version: str = "1.0.0"
+
+    # Optional shared password for the whole site (HTTP Basic, any username). Unset means open, which is fine on localhost only.
+    access_password: str | None = field(default_factory=lambda: os.environ.get("VIONA_ACCESS_PASSWORD") or None)
+    frontend_dir: Path = field(default_factory=lambda: _env_path("VIONA_FRONTEND_DIR", REPO_ROOT / "frontend" / "dist"))
 
     # Locations
     model_dir: Path = field(default_factory=lambda: _env_path("NID_MODEL_DIR", REPO_ROOT / "models"))

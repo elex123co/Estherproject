@@ -31,8 +31,8 @@ export function AppLayout() {
             <path d="M11.5 16.5h3l1.5-4 2 7 1.5-3h1" fill="none" stroke="#4cc2d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div>
-            <div className="brand-title">NID Risk Console</div>
-            <div className="brand-sub">Intrusion detection prototype</div>
+            <div className="brand-title">Viona</div>
+            <div className="brand-sub">Network threat detection</div>
           </div>
         </div>
         <nav className="nav" aria-label="Main">
