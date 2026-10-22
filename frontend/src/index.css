@@ -257,3 +257,24 @@ tr.clickable { cursor: pointer; }
 tr.clickable:hover td { background: var(--surface-2); }
 input[type="number"] { width: 100px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; padding: 5px 8px; font: inherit; }
 td.num input[type="number"] { width: 84px; text-align: right; }
+
+/* ---------- phones ---------- */
+@media (max-width: 860px) {
+  .sidebar { gap: 8px; }
+  .nav { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { padding: 9px 12px; }
+  .sidebar-footer { order: 2; flex: 1 1 100%; margin-left: 0; }
+  .status-card { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 10px; }
+  .status-card .faint.mono { display: none; }
+  .topbar { font-size: 12px; gap: 6px; }
+  .topbar > .muted { flex: 1 1 100%; }
+  .grid.c4, .grid.c5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat-value { font-size: 21px; }
+  .page-header h1 { font-size: 20px; }
+  .btn, select, input[type="text"], input[type="number"] { min-height: 38px; }
+  .row > label.field { flex: 1 1 140px; }
+  .row > label.field select, .row > label.field input { max-width: none; width: 100%; }
+  table.data th, table.data td { padding: 8px 9px; }
+  .drawer { width: 100%; max-width: 100%; }
+}
