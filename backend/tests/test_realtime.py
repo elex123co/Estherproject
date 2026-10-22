@@ -165,3 +165,28 @@ def test_dashboard_served_and_access_password(workspace, tmp_path):
             assert c.get("/api/nope", auth=("any", "s3cret")).status_code == 404
     finally:
         os.environ.pop("VIONA_FRONTEND_DIR"); os.environ.pop("VIONA_ACCESS_PASSWORD")
+
+
+def test_bundled_demo_model_loads_and_is_labelled_synthetic():
+    """The model shipped in demo_model/ must load with this code, or hosted deploys start without a model."""
+    from pathlib import Path
+    from app.ml.model_store import ModelStore
+    d = Path(__file__).resolve().parents[2] / "demo_model"
+    store = ModelStore(d / "intrusion_model.joblib", d / "model_metadata.json", d / "evaluation.json")
+    store.load()
+    assert store.loaded, store.error
+    assert store.is_synthetic and (d / "simulation_pool.joblib").exists()
+
+
+def test_unreachable_postgres_falls_back_and_says_so(workspace):
+    import os
+    os.environ["DATABASE_URL"] = "postgresql://nobody:x@127.0.0.1:1/none?connect_timeout=2"
+    try:
+        from conftest import Settings, create_app
+        from fastapi.testclient import TestClient
+        s = Settings(model_dir=workspace / "models", data_dir=workspace / "data", database_path=workspace / "data" / "fb.sqlite3")
+        with TestClient(create_app(s)) as c:
+            h = c.get("/api/health").json()
+            assert h["database_ok"] and "Postgres unreachable" in h["database_error"]
+    finally:
+        os.environ.pop("DATABASE_URL")

@@ -11,6 +11,7 @@ COPY backend/requirements.txt backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend backend
 COPY docs docs
+COPY demo_model demo_model
 COPY --from=web /web/dist frontend/dist
 RUN mkdir -p data models
 ENV PYTHONUNBUFFERED=1

@@ -20,6 +20,8 @@ def health(c: Container = Depends(get_container)):
             conn.execute("SELECT 1").fetchone()
     except Exception as exc:  # noqa: BLE001
         db_ok, db_error = False, f"{type(exc).__name__}: {exc}"
+    if db_ok and c.db_warning:
+        db_error = c.db_warning  # shown in the status panel; the app still works
     ready = bool(c.store.loaded and db_ok)
     return HealthResponse(
         status="ok" if ready else "degraded",

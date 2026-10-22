@@ -1,0 +1,306 @@
+{
+  "model_version": "20261022T195035Z-logistic_regression",
+  "selected_model": "logistic_regression",
+  "selected": {
+    "basis": "held-out test split",
+    "n_samples": 6000,
+    "accuracy": 0.9833333333333333,
+    "macro_avg": {
+      "precision": 0.8979286089884634,
+      "recall": 0.9043006136455709,
+      "f1": 0.8993339672130236
+    },
+    "weighted_avg": {
+      "precision": 0.9856708344873558,
+      "recall": 0.9833333333333333,
+      "f1": 0.9843305910699228
+    },
+    "averaging_note": "Macro average: unweighted mean over classes that occur in the evaluated data, so minority attack classes count as much as BENIGN. Weighted average: mean weighted by class support.",
+    "binary_detection": {
+      "true_positives": 2315,
+      "false_positives": 24,
+      "true_negatives": 3659,
+      "false_negatives": 2,
+      "precision": 0.9897392047883711,
+      "recall": 0.9991368148467846,
+      "f1": 0.9944158075601375,
+      "false_positive_rate": 0.0065164268259571,
+      "false_negative_rate": 0.0008631851532153647
+    },
+    "labels": [
+      "BENIGN",
+      "Bot",
+      "DDoS",
+      "DoS Hulk",
+      "FTP-Patator",
+      "Heartbleed",
+      "Infiltration",
+      "PortScan",
+      "SSH-Patator",
+      "Web Attack - Brute Force",
+      "Web Attack - XSS"
+    ],
+    "confusion_matrix": [
+      [
+        3659,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        5,
+        16
+      ],
+      [
+        0,
+        116,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        608,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        2,
+        0,
+        600,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        187,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        17,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        430,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        190,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        54,
+        38
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        27,
+        31
+      ]
+    ],
+    "per_class": [
+      {
+        "label": "BENIGN",
+        "precision": 0.9994537011745425,
+        "recall": 0.9934835731740429,
+        "f1": 0.9964596949891067,
+        "support": 3683
+      },
+      {
+        "label": "Bot",
+        "precision": 0.9666666666666667,
+        "recall": 0.9830508474576272,
+        "f1": 0.9747899159663865,
+        "support": 118
+      },
+      {
+        "label": "DDoS",
+        "precision": 0.9983579638752053,
+        "recall": 1.0,
+        "f1": 0.9991783073130649,
+        "support": 608
+      },
+      {
+        "label": "DoS Hulk",
+        "precision": 0.9966777408637874,
+        "recall": 0.9966777408637874,
+        "f1": 0.9966777408637874,
+        "support": 602
+      },
+      {
+        "label": "FTP-Patator",
+        "precision": 0.9894179894179894,
+        "recall": 0.9946808510638298,
+        "f1": 0.9920424403183024,
+        "support": 188
+      },
+      {
+        "label": "Heartbleed",
+        "precision": 1.0,
+        "recall": 0.8888888888888888,
+        "f1": 0.9411764705882353,
+        "support": 9
+      },
+      {
+        "label": "Infiltration",
+        "precision": 0.9444444444444444,
+        "recall": 1.0,
+        "f1": 0.9714285714285714,
+        "support": 17
+      },
+      {
+        "label": "PortScan",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 430
+      },
+      {
+        "label": "SSH-Patator",
+        "precision": 0.9895833333333334,
+        "recall": 0.9844559585492227,
+        "f1": 0.9870129870129869,
+        "support": 193
+      },
+      {
+        "label": "Web Attack - Brute Force",
+        "precision": 0.627906976744186,
+        "recall": 0.5806451612903226,
+        "f1": 0.6033519553072626,
+        "support": 93
+      },
+      {
+        "label": "Web Attack - XSS",
+        "precision": 0.36470588235294116,
+        "recall": 0.5254237288135594,
+        "f1": 0.4305555555555556,
+        "support": 59
+      }
+    ]
+  },
+  "candidates_validation": {
+    "random_forest": {
+      "fit_seconds": 2.34,
+      "validation": {
+        "accuracy": 0.9871666666666666,
+        "macro_precision": 0.9038197745072822,
+        "macro_recall": 0.8954814852697083,
+        "macro_f1": 0.8970104396258441,
+        "weighted_f1": 0.9859282004960894,
+        "attack_recall": 0.9948208890807078,
+        "false_positive_rate": 0.0
+      }
+    },
+    "decision_tree": {
+      "fit_seconds": 0.63,
+      "validation": {
+        "accuracy": 0.9873333333333333,
+        "macro_precision": 0.9021951779435149,
+        "macro_recall": 0.8825862470413219,
+        "macro_f1": 0.8906224038492467,
+        "weighted_f1": 0.9869301380599805,
+        "attack_recall": 0.9948208890807078,
+        "false_positive_rate": 0.0013575889220743959
+      }
+    },
+    "logistic_regression": {
+      "fit_seconds": 7.1,
+      "validation": {
+        "accuracy": 0.984,
+        "macro_precision": 0.9035004751060487,
+        "macro_recall": 0.9060044713554158,
+        "macro_f1": 0.9029622344428493,
+        "weighted_f1": 0.9846789249207684,
+        "attack_recall": 0.998705222270177,
+        "false_positive_rate": 0.005973391257127342
+      }
+    }
+  }
+}

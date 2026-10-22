@@ -1,0 +1,275 @@
+{
+  "model_version": "20261022T195035Z-logistic_regression",
+  "model_type": "logistic_regression",
+  "trained_at": "2026-10-22T19:50:35.290462+00:00",
+  "training_seconds": 11.6,
+  "random_seed": 42,
+  "dataset": {
+    "name": "t",
+    "version": null,
+    "is_synthetic": true,
+    "files": [
+      {
+        "name": "synthetic_cicids_like.csv",
+        "size_bytes": 28827127,
+        "sha256": "e8e02dc3705a65dcf890fcbaaa76bbae5d4f2d072937963247bea6429cf33322",
+        "rows": 30300
+      }
+    ],
+    "rows_loaded": 30300,
+    "rows_missing_label": 0,
+    "duplicates_removed": 300,
+    "classes_dropped_too_few_samples": {},
+    "rows_used": 30000,
+    "max_rows_sampling": null,
+    "class_distribution": {
+      "BENIGN": 18417,
+      "DDoS": 3038,
+      "DoS Hulk": 3009,
+      "PortScan": 2153,
+      "SSH-Patator": 963,
+      "FTP-Patator": 941,
+      "Bot": 590,
+      "Web Attack - Brute Force": 464,
+      "Web Attack - XSS": 294,
+      "Infiltration": 87,
+      "Heartbleed": 44
+    },
+    "non_numeric_columns_excluded": []
+  },
+  "split": {
+    "strategy": "random stratified split by label",
+    "train_rows": 18000,
+    "validation_rows": 6000,
+    "test_rows": 6000,
+    "caveat": "Flows from the same capture session can be correlated, so a random split may overestimate performance on unseen networks or capture days."
+  },
+  "features": [
+    "Destination Port",
+    "Flow Duration",
+    "Total Fwd Packets",
+    "Total Backward Packets",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Max",
+    "Fwd Packet Length Min",
+    "Fwd Packet Length Mean",
+    "Fwd Packet Length Std",
+    "Bwd Packet Length Max",
+    "Bwd Packet Length Min",
+    "Bwd Packet Length Mean",
+    "Bwd Packet Length Std",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Flow IAT Mean",
+    "Flow IAT Std",
+    "Flow IAT Max",
+    "Flow IAT Min",
+    "Fwd IAT Total",
+    "Fwd IAT Mean",
+    "Fwd IAT Std",
+    "Fwd IAT Max",
+    "Fwd IAT Min",
+    "Bwd IAT Total",
+    "Bwd IAT Mean",
+    "Bwd IAT Std",
+    "Bwd IAT Max",
+    "Bwd IAT Min",
+    "Fwd Header Length",
+    "Bwd Header Length",
+    "Fwd Packets/s",
+    "Bwd Packets/s",
+    "Min Packet Length",
+    "Max Packet Length",
+    "Packet Length Mean",
+    "Packet Length Std",
+    "Packet Length Variance",
+    "FIN Flag Count",
+    "SYN Flag Count",
+    "RST Flag Count",
+    "PSH Flag Count",
+    "ACK Flag Count",
+    "URG Flag Count",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Init_Win_bytes_forward",
+    "Init_Win_bytes_backward",
+    "act_data_pkt_fwd",
+    "min_seg_size_forward",
+    "Active Mean",
+    "Active Std",
+    "Active Max",
+    "Active Min",
+    "Idle Mean",
+    "Idle Max",
+    "Idle Min"
+  ],
+  "removed_features": [
+    {
+      "feature": "Fwd PSH Flags",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Bwd PSH Flags",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Fwd URG Flags",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Bwd URG Flags",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "CWE Flag Count",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "ECE Flag Count",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Avg Fwd Segment Size",
+      "reason": "exact duplicate of 'Fwd Packet Length Mean'"
+    },
+    {
+      "feature": "Avg Bwd Segment Size",
+      "reason": "exact duplicate of 'Bwd Packet Length Mean'"
+    },
+    {
+      "feature": "Fwd Header Length.1",
+      "reason": "exact duplicate of 'Fwd Header Length'"
+    },
+    {
+      "feature": "Fwd Avg Bytes/Bulk",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Fwd Avg Packets/Bulk",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Fwd Avg Bulk Rate",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Bwd Avg Bytes/Bulk",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Bwd Avg Packets/Bulk",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Bwd Avg Bulk Rate",
+      "reason": "constant in training data"
+    },
+    {
+      "feature": "Subflow Fwd Packets",
+      "reason": "exact duplicate of 'Total Fwd Packets'"
+    },
+    {
+      "feature": "Subflow Fwd Bytes",
+      "reason": "exact duplicate of 'Total Length of Fwd Packets'"
+    },
+    {
+      "feature": "Subflow Bwd Packets",
+      "reason": "exact duplicate of 'Total Backward Packets'"
+    },
+    {
+      "feature": "Subflow Bwd Bytes",
+      "reason": "exact duplicate of 'Total Length of Bwd Packets'"
+    },
+    {
+      "feature": "Idle Std",
+      "reason": "constant in training data"
+    }
+  ],
+  "classes": [
+    "BENIGN",
+    "Bot",
+    "DDoS",
+    "DoS Hulk",
+    "FTP-Patator",
+    "Heartbleed",
+    "Infiltration",
+    "PortScan",
+    "SSH-Patator",
+    "Web Attack - Brute Force",
+    "Web Attack - XSS"
+  ],
+  "benign_label": "BENIGN",
+  "preprocessing": [
+    "column names stripped of whitespace",
+    "non-numeric, infinite and absurdly large values set to missing",
+    "median imputation fitted on the training split",
+    "standard scaling (logistic regression only)",
+    "class_weight balanced to counter class imbalance"
+  ],
+  "candidates": {
+    "random_forest": {
+      "fit_seconds": 2.34,
+      "validation": {
+        "accuracy": 0.9871666666666666,
+        "macro_precision": 0.9038197745072822,
+        "macro_recall": 0.8954814852697083,
+        "macro_f1": 0.8970104396258441,
+        "weighted_f1": 0.9859282004960894,
+        "attack_recall": 0.9948208890807078,
+        "false_positive_rate": 0.0
+      }
+    },
+    "decision_tree": {
+      "fit_seconds": 0.63,
+      "validation": {
+        "accuracy": 0.9873333333333333,
+        "macro_precision": 0.9021951779435149,
+        "macro_recall": 0.8825862470413219,
+        "macro_f1": 0.8906224038492467,
+        "weighted_f1": 0.9869301380599805,
+        "attack_recall": 0.9948208890807078,
+        "false_positive_rate": 0.0013575889220743959
+      }
+    },
+    "logistic_regression": {
+      "fit_seconds": 7.1,
+      "validation": {
+        "accuracy": 0.984,
+        "macro_precision": 0.9035004751060487,
+        "macro_recall": 0.9060044713554158,
+        "macro_f1": 0.9029622344428493,
+        "weighted_f1": 0.9846789249207684,
+        "attack_recall": 0.998705222270177,
+        "false_positive_rate": 0.005973391257127342
+      }
+    }
+  },
+  "selection_criterion": "validation macro-F1, then attack recall, then lower false-positive rate",
+  "supports_probability_estimates": true,
+  "confidence_note": "Confidence is the model's predicted-class probability. For tree ensembles it is a vote share and is not a calibrated probability that an attack is occurring.",
+  "feature_importances": null,
+  "simulation_pool": {
+    "source": "held-out test split (validation split tops up small classes); never used to fit the model",
+    "per_class": {
+      "BENIGN": 500,
+      "DDoS": 500,
+      "DoS Hulk": 500,
+      "PortScan": 430,
+      "SSH-Patator": 193,
+      "FTP-Patator": 188,
+      "Bot": 118,
+      "Web Attack - Brute Force": 93,
+      "Web Attack - XSS": 59,
+      "Infiltration": 34,
+      "Heartbleed": 18
+    }
+  },
+  "train_accuracy_sample": 0.9875555555555555,
+  "library_versions": {
+    "python": "3.13.16",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.5",
+    "numpy": "2.5.3"
+  }
+}
