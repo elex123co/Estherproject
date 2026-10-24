@@ -136,6 +136,7 @@ const ICONS: Record<string, string> = {
   model: "M4 6h16M4 12h10M4 18h6M18 14l3 3-3 3",
   reports: "M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6",
   live: "M3 12h4l3-8 4 16 3-8h4",
+  more: "M5 12h.01M12 12h.01M19 12h.01",
   rules: "M5 5h14M5 12h14M5 19h14M8 3v4M16 10v4M10 17v4",
 };
 

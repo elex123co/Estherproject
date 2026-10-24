@@ -45,9 +45,23 @@ export function SystemStatus() {
       <Line ok={h.model_loaded} label="Model loaded" detail={h.model_loaded ? undefined : "failed"} />
       <Line ok={h.database_ok} label="Database" />
       <Line ok={h.ready} label={h.ready ? "Ready to analyze" : "Not ready"} />
+      {h.model_is_synthetic && <Line ok={null} label="Demo model (synthetic data)" />}
       {h.model_error && <div className="err">{h.model_error}</div>}
       {h.database_error && <div className="err">{h.database_error}</div>}
       {h.model_version && <div className="faint mono" style={{ marginTop: 6, wordBreak: "break-all" }}>{h.model_version}</div>}
     </div>
+  );
+}
+
+/** One-dot summary for the mobile top bar. */
+export function StatusDot() {
+  const { state, waking } = useHealthState();
+  const ok = state.phase === "answered" ? state.health.ready : state.phase === "unreachable" && !waking ? false : null;
+  const text = state.phase === "answered" ? (state.health.ready ? "Ready" : "Not ready") : waking ? "Waking" : state.phase === "unreachable" ? "Offline" : "Checking";
+  return (
+    <span className="m-status" role="status">
+      <span className={`dot-status ${ok === null ? "wait" : ok ? "ok" : "bad"}`} aria-hidden="true" />
+      {text}
+    </span>
   );
 }

@@ -1,6 +1,7 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Banner, Icon } from "../components/ui";
-import { SystemStatus } from "../components/SystemStatus";
+import { StatusDot, SystemStatus } from "../components/SystemStatus";
 import { useHealthState } from "../context/HealthContext";
 import { useScope } from "../context/ScanContext";
 import { fmtDateTime } from "../utils/format";
@@ -16,20 +17,43 @@ const NAV = [
   { to: "/risk-rules", label: "Risk rules", icon: "rules" },
 ] as const;
 
+const TABS = ["/", "/live", "/alerts", "/upload"];
+const MORE = NAV.filter((n) => !TABS.includes(n.to));
+
+function Logo({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#131d2a" />
+      <path d="M16 5l9 3.5v7c0 5.2-3.7 9.2-9 11.5-5.3-2.3-9-6.3-9-11.5v-7z" fill="none" stroke="#4cc2d9" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M11.5 16.5h3l1.5-4 2 7 1.5-3h1" fill="none" stroke="#4cc2d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function AppLayout() {
   const { scanId, setScanId, scans } = useScope();
   const { state, waking } = useHealthState();
   const analyzable = scans.filter((s) => s.status === "completed");
+  const [sheet, setSheet] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setSheet(false), [pathname]);
+  const moreActive = MORE.some((n) => pathname.startsWith(n.to));
+  const scopeOptions = (
+    <>
+      <option value="">All analyses</option>
+      {analyzable.map((s) => (
+        <option key={s.id} value={s.id}>
+          {(s.filename ?? "Single record")} - {fmtDateTime(s.finished_at ?? s.created_at)}
+        </option>
+      ))}
+    </>
+  );
 
   return (
     <div className="app">
       <aside className="sidebar">
         <div className="brand">
-          <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-            <rect width="32" height="32" rx="7" fill="#131d2a" />
-            <path d="M16 5l9 3.5v7c0 5.2-3.7 9.2-9 11.5-5.3-2.3-9-6.3-9-11.5v-7z" fill="none" stroke="#4cc2d9" strokeWidth="2" strokeLinejoin="round" />
-            <path d="M11.5 16.5h3l1.5-4 2 7 1.5-3h1" fill="none" stroke="#4cc2d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <Logo size={30} />
           <div>
             <div className="brand-title">Viona</div>
             <div className="brand-sub">Network threat detection</div>
@@ -49,17 +73,16 @@ export function AppLayout() {
       </aside>
 
       <div className="main">
+        <header className="m-bar">
+          <Logo size={26} />
+          <span className="m-title">Viona</span>
+          <select value={scanId} onChange={(e) => setScanId(e.target.value)} aria-label="Analysis scope">{scopeOptions}</select>
+          <StatusDot />
+        </header>
         <header className="topbar">
           <div className="scope">
             <label htmlFor="scope" className="muted small">Showing</label>
-            <select id="scope" value={scanId} onChange={(e) => setScanId(e.target.value)} aria-label="Analysis scope">
-              <option value="">All analyses</option>
-              {analyzable.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {(s.filename ?? "Single record")} - {fmtDateTime(s.finished_at ?? s.created_at)}
-                </option>
-              ))}
-            </select>
+            <select id="scope" value={scanId} onChange={(e) => setScanId(e.target.value)} aria-label="Analysis scope">{scopeOptions}</select>
           </div>
           <span className="muted small">Predictions are model estimates. Flagged records are potential intrusions, not confirmed incidents.</span>
         </header>
@@ -85,14 +108,38 @@ export function AppLayout() {
               <div><strong>No model is loaded.</strong> {state.health.model_error ?? ""} Train a model with backend/scripts/train.py, then restart the API.</div>
             </Banner>
           )}
-          {state.phase === "answered" && state.health.model_is_synthetic && (
-            <Banner tone="warn">
-              <div><strong>Demo model.</strong> The loaded model was trained on synthetic smoke-test data, not real network traffic. Results demonstrate that the software works. They say nothing about real-world detection quality. Train on CICIDS2017 for meaningful results.</div>
-            </Banner>
-          )}
           <Outlet />
         </main>
       </div>
+
+      <nav className="tabbar" aria-label="Main">
+        {NAV.filter((n) => TABS.includes(n.to)).map((n) => (
+          <NavLink key={n.to} to={n.to} end={n.to === "/"} className={({ isActive }) => (isActive ? "active" : "")}>
+            <Icon name={n.icon} />
+            <span>{n.to === "/" ? "Overview" : n.to === "/live" ? "Live" : n.to === "/alerts" ? "Alerts" : "Upload"}</span>
+          </NavLink>
+        ))}
+        <button type="button" className={sheet || moreActive ? "active" : ""} onClick={() => setSheet((v) => !v)} aria-expanded={sheet} aria-haspopup="dialog">
+          <Icon name="more" />
+          <span>More</span>
+        </button>
+      </nav>
+
+      {sheet && (
+        <div className="sheet-wrap" onClick={() => setSheet(false)}>
+          <div className="sheet" role="dialog" aria-label="More pages" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-grip" aria-hidden="true" />
+            {MORE.map((n) => (
+              <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? "active" : "")}>
+                <Icon name={n.icon} />
+                {n.label}
+              </NavLink>
+            ))}
+            <div className="sheet-note">Predictions are model estimates. Flagged records are potential intrusions, not confirmed incidents.</div>
+            <SystemStatus />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
