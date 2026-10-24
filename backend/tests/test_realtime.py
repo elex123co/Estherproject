@@ -203,3 +203,17 @@ def test_unreachable_postgres_falls_back_and_says_so(workspace):
             assert h["database_ok"] and "Postgres unreachable" in h["database_error"]
     finally:
         os.environ.pop("DATABASE_URL")
+
+
+def test_separate_db_fields_handle_awkward_passwords(monkeypatch):
+    from app.core.config import _database_conninfo
+    from psycopg.conninfo import conninfo_to_dict
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setenv("DB_HOST", "aws-0-eu-west-1.pooler.supabase.com")
+    monkeypatch.setenv("DB_USER", "postgres.abcdef")
+    monkeypatch.setenv("DB_PASSWORD", "p@ss/w#rd:1")
+    d = conninfo_to_dict(_database_conninfo())
+    assert d["host"] == "aws-0-eu-west-1.pooler.supabase.com" and d["password"] == "p@ss/w#rd:1"
+    assert d["user"] == "postgres.abcdef" and d["sslmode"] == "require" and d["port"] == "5432"
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@h/db")  # a full URL still wins
+    assert _database_conninfo() == "postgresql://x:y@h/db"

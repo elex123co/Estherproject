@@ -75,6 +75,8 @@ ALTER TABLE records ENABLE ROW LEVEL SECURITY;
 
 def _normalize_url(url: str) -> str:
     url = url.strip()
+    if "://" not in url:  # keyword-style conninfo built from DB_HOST / DB_USER / DB_PASSWORD
+        return url
     if url.startswith("postgres://"):
         url = "postgresql://" + url[len("postgres://"):]
     host = urlparse(url).hostname or ""
@@ -112,6 +114,9 @@ class Database:
 
     def describe(self) -> str:
         if self.url:
+            if "://" not in self.url:
+                from psycopg.conninfo import conninfo_to_dict
+                return f"postgres at {conninfo_to_dict(self.url).get('host') or 'local socket'}"
             p = urlparse(self.url)
             return f"postgres at {p.hostname or 'local socket'}"
         return f"sqlite file {self.path}"

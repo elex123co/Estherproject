@@ -22,6 +22,7 @@ No external database is needed. Data entered by hand (single-record check, CSV u
 
 By default Viona keeps results in a local SQLite file. To keep them across restarts on a host without a disk, set one environment variable and the same app stores everything in Postgres:
 
+- Or, if the password has awkward characters (`@`, `/`, `#`), use separate fields instead of a URL: `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and optionally `DB_PORT` (default 5432) and `DB_NAME` (default postgres). The password is used exactly as typed.
 - `DATABASE_URL`: the connection string from Supabase (Project Settings, Database, Connection string, **Session pooler** or the direct connection; the Transaction pooler also works).
 
 The tables are created automatically on first start, with row level security switched on and no policies, so Supabase's public REST API cannot read them. Only the backend's own connection can. With Postgres the real-time record cap defaults to 50,000 (`NID_MAX_REALTIME_RECORDS`) to respect the free 500 MB limit. The CSV files you upload are still saved on the server's local disk, so after a restart on a free host the results remain but a file cannot be replayed again.

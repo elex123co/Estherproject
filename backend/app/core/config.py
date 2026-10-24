@@ -20,13 +20,32 @@ def _env_list(name: str, default: list[str]) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _database_conninfo() -> str | None:
+    """DATABASE_URL, or separate DB_HOST / DB_USER / DB_PASSWORD fields (no URL escaping needed for odd passwords)."""
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        return url
+    host = os.environ.get("DB_HOST")
+    if not host:
+        return None
+    from psycopg.conninfo import make_conninfo
+    local = host.startswith("/") or host in ("localhost", "127.0.0.1")
+    fields = {"host": host, "port": os.environ.get("DB_PORT", "5432"), "user": os.environ.get("DB_USER", "postgres"),
+              "dbname": os.environ.get("DB_NAME", "postgres")}
+    if os.environ.get("DB_PASSWORD"):
+        fields["password"] = os.environ["DB_PASSWORD"]
+    if not local:
+        fields["sslmode"] = "require"
+    return make_conninfo(**fields)
+
+
 @dataclass
 class Settings:
     app_name: str = "Viona API"
     app_version: str = "1.0.0"
 
     # Postgres connection string (for example Supabase). When unset, a local SQLite file is used.
-    database_url: str | None = field(default_factory=lambda: os.environ.get("DATABASE_URL") or None)
+    database_url: str | None = field(default_factory=_database_conninfo)
 
     # Optional shared password for the whole site (HTTP Basic, any username). Unset means open, which is fine on localhost only.
     access_password: str | None = field(default_factory=lambda: os.environ.get("VIONA_ACCESS_PASSWORD") or None)
@@ -63,7 +82,7 @@ class Settings:
     max_page_size: int = 200
     # Real-time sessions
     max_realtime_rate: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RATE", "2000")))
-    max_realtime_records: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RECORDS", "50000" if os.environ.get("DATABASE_URL") else "500000")))
+    max_realtime_records: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_REALTIME_RECORDS", "50000" if (os.environ.get("DATABASE_URL") or os.environ.get("DB_HOST")) else "500000")))
     max_session_seconds: int = field(default_factory=lambda: int(os.environ.get("NID_MAX_SESSION_SECONDS", "3600")))
 
     @property
